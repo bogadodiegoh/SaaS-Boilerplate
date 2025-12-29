@@ -3,5 +3,6 @@
 	public interface ITenantService
 	{
 		string? TenantId { get; }
+		bool HasTenant();
 	}
 }

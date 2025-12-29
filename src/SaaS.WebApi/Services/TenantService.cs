@@ -1,4 +1,6 @@
-﻿﻿using SaaS.Application.Interfaces;
+﻿using System.Security.Claims;
+using SaaS.Application.Interfaces;
+using SaaS.Domain.Constants;
 
 namespace SaaS.WebApi.Services
 {
@@ -11,6 +13,8 @@ namespace SaaS.WebApi.Services
 			_httpContextAccessor = httpContextAccessor;
 		}
 
-		public string? TenantId => _httpContextAccessor.HttpContext?.Request.Headers["x-tenant-id"].ToString();
+		public string? TenantId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(CustomClaimTypes.TenantId);
+
+		public bool HasTenant() => !string.IsNullOrEmpty(TenantId);
 	}
 }

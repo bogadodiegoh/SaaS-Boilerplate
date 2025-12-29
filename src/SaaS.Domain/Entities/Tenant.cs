@@ -7,5 +7,7 @@ namespace SaaS.Domain.Entities
 		public string Name { get; set; } = string.Empty;
 		public string Identifier { get; set; } = string.Empty;
 		public bool IsActive { get; set; } = true;
+		public string Plan { get; set; } = "Free";
+		public DateTime? SubscriptionEndDate { get; set; }
 	}
 }

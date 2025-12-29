@@ -1,5 +1,6 @@
-﻿﻿using System.Linq.Expressions;
-using System.Reflection.Emit;
+﻿using System.Linq.Expressions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SaaS.Application.Interfaces;
 using SaaS.Domain.Common.Interfaces;
@@ -7,9 +8,13 @@ using SaaS.Domain.Entities;
 
 namespace SaaS.Infrastructure.Persistence;
 
-public class ApplicationDbContext: DbContext
+public class ApplicationDbContext: IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>, IApplicationDbContext
 {
 	protected ITenantService TenantService { get; }
+
+	public DbSet<Tenant> Tenants => Set<Tenant>();
+
+	public DbSet<Product> Products => Set<Product>();
 
 	public ApplicationDbContext(
 		DbContextOptions<ApplicationDbContext> options,
@@ -17,9 +22,6 @@ public class ApplicationDbContext: DbContext
 	{
 		TenantService = tenantService;
 	}
-
-	public DbSet<Tenant> Tenants => Set<Tenant>();
-	public DbSet<Product> Products => Set<Product>();
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -36,6 +38,11 @@ public class ApplicationDbContext: DbContext
 		{
 			if (typeof(IMustHaveTenant).IsAssignableFrom(entityType.ClrType))
 			{
+				var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var body = Expression.Equal(
+                    Expression.Property(parameter, "TenantId"),
+                    Expression.Constant(TenantService.TenantId));
+
 				modelBuilder.Entity(entityType.ClrType).HasQueryFilter(
 					GenerateQueryFilterLambda(entityType.ClrType));
 			}
@@ -69,6 +76,14 @@ public class ApplicationDbContext: DbContext
 				case EntityState.Added:
 					entry.Entity.TenantId = TenantService.TenantId 
 						?? throw new Exception("Cannot create a record without a valid TenantId.");
+					break;
+				case EntityState.Modified:
+					if (string.IsNullOrEmpty(TenantService.TenantId))
+					{
+						throw new InvalidOperationException("A multi-tenant entity cannot be saved without a valid TenantId in the context.");
+					}
+                
+					entry.Entity.TenantId = TenantService.TenantId;
 					break;
 			}
 		}

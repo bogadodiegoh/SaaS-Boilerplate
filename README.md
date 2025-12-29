@@ -6,18 +6,19 @@ A professional, production-ready Full Stack SaaS Boilerplate built with **.NET 9
 
 This project follows the **Clean Architecture** pattern to ensure decoupling, testability, and maintainability.
 
-- **Domain**: Core business logic, entities, and domain exceptions.
-- **Application**: Use cases (CQRS), DTOs, Mapping, and Validation logic.
-- **Infrastructure**: Data persistence (EF Core), external services, and logging.
-- **WebAPI**: Entry point, middleware, and controllers.
+- **Domain**: Core business logic, entities, IMustHaveTenant interface, and domain exceptions.
+- **Application**: Use cases (CQRS via MediatR), DTOs, Mapping, and Validation logic.
+- **Infrastructure**: Data persistence (EF Core), Identity with RBAC, and multi-tenant database configuration.
+- **WebAPI**: Entry point, JWT Authentication, Serilog configuration, and Global Exception Handlers.
 
 ## 🚀 Key Features & Patterns
 
-- **Clean Architecture:** Strict separation of concerns across four main layers.
+- **Tenant Onboarding:** Automated flow to register a new Organization (Tenant) and its first Administrator in a single atomic operation.
+- **Identity & RBAC:** Complete Authentication and Authorization system with Roles (Admin/User) using ASP.NET Core Identity.
+- **Structured Logging:** Integrated Serilog for advanced traceability with file and console sinks.
 - **CQRS Pattern:** Implemented using **MediatR** for clean command and query separation.
 - **Automatic Validation:** Request validation via **MediatR Pipeline Behaviors** and **FluentValidation**.
-- **Global Exception Handling:** Unified JSON error responses via `IExceptionHandler`.
-- **Generic Repository & Unit of Work:** Standardized data access layer.
+- **Global Exception Handling:** Unified JSON error responses(Problem Details) via `IExceptionHandler` for a better Frontend experience.
 - **Modern Frontend:** Angular 18+ featuring Signals and standalone components (Coming Soon).
 
 ## 🛣️ Roadmap
@@ -28,8 +29,10 @@ This project follows the **Clean Architecture** pattern to ensure decoupling, te
 - [x] Global Exception Handling & Problem Details.
 - [x] Automatic Validation Pipeline (FluentValidation).
 - [x] Multi-tenancy Support (Shared Database strategy).
-- [ ] **Next Step:** Identity Management (Login/Register/JWT).
+- [x] Identity Management (Login/Register Tenant/RBAC).
+- [x] Structured Logging with Serilog.
 - [ ] Subscription & Plan Management module (Stripe).
+- [ ] Angular 18 Frontend implementation (Signals & Standalone).
 
 ## 🛠️ Getting Started
 
@@ -43,26 +46,24 @@ This project follows the **Clean Architecture** pattern to ensure decoupling, te
    ```bash
    git clone https://github.com/bogadodiegoh/SaaS-Boilerplate.git
    ```
-   
-2. **Configure Database: The connection string is pre-configured for LocalDB in src/SaaS.WebApi/appsettings.json. Update it if you use a full SQL Server instance.**
 
-3. **Apply Migrations: Run the following command from the root directory to create the database:**
+2. **Apply Migrations: Run the following command to create the database and the new Tenants table:**
 	```bash
 	dotnet ef database update --project src/SaaS.Infrastructure --startup-project src/SaaS.WebApi
 	```
 	
-4. **Run the API:**
+3. **Run the API:**
 	```bash
 	dotnet run --project src/SaaS.WebApi
 	```
 	Explore the API using Swagger at https://localhost:XXXX/swagger.
 	
-## 🧪 Testing Multi-tenancy
-To verify data isolation between tenants:
-1. Open Swagger and go to POST /api/Products.
-2. Click "Try it out" and add the header x-tenant-id: client-a. Create a product.
-3. Repeat the process with header x-tenant-id: client-b and a different product name.
-4. Go to GET /api/Products.
-5. Switch the x-tenant-id header between client-a and client-b to see how the list filters automatically.
+## 🧪 Testing Multi-tenancy & Security
+To verify the professional onboarding and isolation flow:
+1. Register a Tenant: Use POST /api/Auth/register-tenant. Provide a TenantId (e.g., tesla) and company details. This creates the organization and your Admin user.
+2. Login: Use POST /api/Auth/login. You will receive a JWT token containing your tenantId and your role.
+3. Authorize: Click the "Authorize" button in Swagger and enter Bearer <your_token>.
+4. Create Data: Use POST /api/Products. Notice that you no longer need to send the TenantId manually; the system extracts it from your token.
+5. Verify Isolation: Log in with a user from a different tenant. You will notice that the GET /api/Products endpoint only returns data belonging to your organization.
 ---
 *Created by [Diego Bogado](https://github.com/bogadodiegoh)*
