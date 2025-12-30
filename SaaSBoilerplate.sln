@@ -17,6 +17,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaaS.UnitTests", "tests\SaaS.UnitTests\SaaS.UnitTests.csproj", "{9055D553-EE2C-49C7-AA0E-1386BC01B8CC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "environments", "environments", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		environment.ts = environment.ts
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,5 +102,9 @@ Global
 		{DD30F565-DBF0-4408-9B5C-C429AD97CD33} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{BADD07A3-9451-429F-9F84-F6CA5067F05C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{9055D553-EE2C-49C7-AA0E-1386BC01B8CC} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8F0674EA-8820-4A46-A505-BC0F52BA904F}
 	EndGlobalSection
 EndGlobal

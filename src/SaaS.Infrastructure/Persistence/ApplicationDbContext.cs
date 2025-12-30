@@ -16,6 +16,8 @@ public class ApplicationDbContext: IdentityDbContext<ApplicationUser, IdentityRo
 
 	public DbSet<Product> Products => Set<Product>();
 
+	public DbSet<Customer> Customers => Set<Customer>();
+
 	public ApplicationDbContext(
 		DbContextOptions<ApplicationDbContext> options,
 		ITenantService tenantService) : base(options)
@@ -54,6 +56,8 @@ public class ApplicationDbContext: IdentityDbContext<ApplicationUser, IdentityRo
 			entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
 			entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
 		});
+
+		modelBuilder.Entity<Customer>().HasQueryFilter(c => c.TenantId == TenantService.GetTenantId());
 	}
 
 	private LambdaExpression GenerateQueryFilterLambda(Type type)

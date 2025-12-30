@@ -4,7 +4,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using SaaS.Application.Common.Behaviors;
@@ -123,6 +122,16 @@ try
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
 
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AngularPolicy", policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    });
+
     var app = builder.Build();
 
     app.UseSerilogRequestLogging(); 
@@ -134,6 +143,8 @@ try
     }
     app.UseExceptionHandler();
 
+    app.UseCors("AngularPolicy");
+
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
@@ -142,44 +153,55 @@ try
 
     using (var scope = app.Services.CreateScope())
     {
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-        string[] roleNames = { AppRoles.Admin, AppRoles.User };
-        foreach (var roleName in roleNames)
+        try
         {
-            if (!await roleManager.RoleExistsAsync(roleName))
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            string[] roleNames = { AppRoles.Admin, AppRoles.User };
+            foreach (var roleName in roleNames)
             {
-                await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                }
+            }
+
+            if (!userManager.Users.Any(u => u.Email == "admin@apple.com"))
+            {
+                var adminUser = new ApplicationUser
+                {
+                    UserName = "admin@apple.com",
+                    Email = "admin@apple.com",
+                    FirstName = "Admin",
+                    LastName = "Apple",
+                    TenantId = "321",
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(adminUser, "SaaS.Password123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, AppRoles.Admin);
+                }
             }
         }
-
-        if (!userManager.Users.Any(u => u.Email == "admin@apple.com"))
+        catch (Exception ex)
         {
-            var adminUser = new ApplicationUser
-            {
-                UserName = "admin@apple.com",
-                Email = "admin@apple.com",
-                FirstName = "Admin",
-                LastName = "Apple",
-                TenantId = "empresa-apple",
-                EmailConfirmed = true
-            };
-
-            var result = await userManager.CreateAsync(adminUser, "SaaS.Password123!");
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, AppRoles.Admin);
-            }
+            var logger = scope.ServiceProvider.GetService<ILogger<Program>>();
+            logger?.LogWarning(ex, "Skipping runtime seeding during host build (likely running under EF tools or startup DB unavailable).");
         }
     }
     app.Run();
 }
-catch (Exception ex)
+catch (Exception ex) when (
+    ex.GetType().Name is not "StopTheHostException" && 
+    ex.GetType().Name is not "HostAbortedException")
 {
     Log.Fatal(ex, "The application failed to start.");
 }
 finally
 {
+    Log.Information("Shutting down the SaaS Web API...");
     Log.CloseAndFlush();
 }

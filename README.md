@@ -31,8 +31,11 @@ This project follows the **Clean Architecture** pattern to ensure decoupling, te
 - [x] Multi-tenancy Support (Shared Database strategy).
 - [x] Identity Management (Login/Register Tenant/RBAC).
 - [x] Structured Logging with Serilog.
+- [x] Angular 18 Frontend implementation (Signals & Standalone).
+- [x] Real-time Search & CRUD with Tenant Isolation.
+- [x] Global Notification (Toast) & Loading UI System.
 - [ ] Subscription & Plan Management module (Stripe).
-- [ ] Angular 18 Frontend implementation (Signals & Standalone).
+- [ ] User Profile & Password Management.
 
 ## 🛠️ Getting Started
 
@@ -52,11 +55,9 @@ This project follows the **Clean Architecture** pattern to ensure decoupling, te
 	dotnet ef database update --project src/SaaS.Infrastructure --startup-project src/SaaS.WebApi
 	```
 	
-3. **Run the API:**
-	```bash
-	dotnet run --project src/SaaS.WebApi
-	```
-	Explore the API using Swagger at https://localhost:XXXX/swagger.
+3. **Run Application:**
+-Backend: ```dotnet run --project src/SaaS.WebApi```
+-Frontend: ``` ng serve ``` (Open in http://localhost:4200)
 	
 ## 🧪 Testing Multi-tenancy & Security
 To verify the professional onboarding and isolation flow:

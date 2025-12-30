@@ -1,0 +1,79 @@
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      Create your SaaS account
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Already have an account?
+      <a routerLink="/auth/login" class="font-medium text-indigo-600 hover:text-indigo-500">
+        Sign in here
+      </a>
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
+    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
+      <form (submit)="onRegister(); $event.preventDefault()" class="space-y-6">
+        
+        @if (errorMessage()) {
+          <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+            <p class="text-sm text-red-700">{{ errorMessage() }}</p>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Organization Details</h3>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Company Name</label>
+            <input [(ngModel)]="companyName" name="companyName" type="text" required 
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Tenant ID (Unique URL)</label>
+            <input [(ngModel)]="tenantId" name="tenantId" type="text" placeholder="e.g. mycompany" required 
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+
+          <div class="sm:col-span-2 mt-4">
+            <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Administrator User</h3>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">First Name</label>
+            <input [(ngModel)]="firstName" name="firstName" type="text" required 
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Last Name</label>
+            <input [(ngModel)]="lastName" name="lastName" type="text" required 
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Email Address</label>
+            <input [(ngModel)]="email" name="email" type="email" required 
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Password</label>
+            <input [(ngModel)]="password" name="password" type="password" required 
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+        </div>
+
+        <div>
+          <button type="submit" [disabled]="isLoading()"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 transition-colors">
+            {{ isLoading() ? 'Creating organization...' : 'Register Organization' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

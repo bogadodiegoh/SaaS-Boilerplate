@@ -15,6 +15,13 @@ namespace SaaS.WebApi.Services
 
 		public string? TenantId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(CustomClaimTypes.TenantId);
 
+		public string? GetTenantId()
+		{
+			var tenantId = _httpContextAccessor.HttpContext?.User?.FindFirst("tenantId")?.Value;
+            
+            return tenantId;
+		}
+
 		public bool HasTenant() => !string.IsNullOrEmpty(TenantId);
 	}
 }

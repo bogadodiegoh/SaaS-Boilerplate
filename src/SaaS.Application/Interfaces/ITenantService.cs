@@ -4,5 +4,7 @@
 	{
 		string? TenantId { get; }
 		bool HasTenant();
+
+		string? GetTenantId();
 	}
 }
